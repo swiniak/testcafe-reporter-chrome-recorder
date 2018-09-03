@@ -23,33 +23,31 @@ gulp.task('lint', function () {
 gulp.task('build', ['clean', 'lint'], function () {
     return gulp
         .src('src/**/*.js')
-        .pipe(babel({
-            plugins: ['transform-runtime']
-        }))
+        .pipe(babel())
         .pipe(gulp.dest('lib'));
 });
 
-// gulp.task('test', ['build'], function () {
-//     return gulp
-//         .src('test/**.js')
-//         .pipe(mocha({
-//             ui:       'bdd',
-//             reporter: 'spec',
-//             timeout:  typeof v8debug === 'undefined' ? 2000 : Infinity // NOTE: disable timeouts in debug
-//         }));
-// });
+gulp.task('test', ['build'], function () {
+    // return gulp
+    //     .src('test/**.js')
+    //     .pipe(mocha({
+    //         ui:       'bdd',
+    //         reporter: 'spec',
+    //         timeout:  typeof v8debug === 'undefined' ? 2000 : Infinity // NOTE: disable timeouts in debug
+    //     }));
+});
 
-// gulp.task('preview', ['build'], function () {
-//     var buildReporterPlugin = require('testcafe').embeddingUtils.buildReporterPlugin;
-//     var pluginFactory       = require('./lib');
-//     var reporterTestCalls   = require('./test/utils/reporter-test-calls');
-//     var plugin              = buildReporterPlugin(pluginFactory);
+gulp.task('preview', ['build'], function () {
+    var buildReporterPlugin = require('testcafe').embeddingUtils.buildReporterPlugin;
+    var pluginFactory       = require('./lib');
+    var reporterTestCalls   = require('./test/utils/reporter-test-calls');
+    var plugin              = buildReporterPlugin(pluginFactory);
 
-//     console.log();
+    console.log();
 
-//     reporterTestCalls.forEach(function (call) {
-//         plugin[call.method].apply(plugin, call.args);
-//     });
+    reporterTestCalls.forEach(function (call) {
+        plugin[call.method].apply(plugin, call.args);
+    });
 
-//     process.exit(0);
-// });
+    process.exit(0);
+});

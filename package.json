@@ -1,11 +1,11 @@
 {
   "name": "testcafe-reporter-chrome-recorder",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "chrome-recorder TestCafe reporter plugin.",
   "repository": "https://github.com/swiniak/testcafe-reporter-chrome-recorder",
   "author": {
     "name": "Andrzej Pasterczyk",
-    "email": "andrzej@kodify.io"
+    "email": "andrzej.pasterczyk@gmail.com"
   },
   "main": "lib/index",
   "files": [
@@ -23,16 +23,11 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^9.0.0",
-    "babel-preset-env": "^1.7.0",
+    "babel-eslint": "^4.0.10",
     "callsite-record": "^3.2.0",
     "del": "^1.2.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^7.0.1",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.1",
     "gulp-eslint": "^1.1.1",
     "gulp-mocha": "^2.2.0",
     "normalize-newline": "^1.0.2",
@@ -41,9 +36,8 @@
     "testcafe": "^0.2.0-alpha"
   },
   "dependencies": {
-    "@babel/runtime": "^7.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^7.0.0",
-    "interval-promise": "^1.2.0"
+    "sleep": "^5.2.3"
   }
 }
