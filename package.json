@@ -1,6 +1,6 @@
 {
   "name": "testcafe-reporter-chrome-recorder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "chrome-recorder TestCafe reporter plugin.",
   "repository": "https://github.com/swiniak/testcafe-reporter-chrome-recorder",
   "author": {

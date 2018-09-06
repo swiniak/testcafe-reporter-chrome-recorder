@@ -2,12 +2,13 @@
 [![Build Status](https://travis-ci.org/swiniak/testcafe-reporter-chrome-recorder.svg)](https://travis-ci.org/swiniak/testcafe-reporter-chrome-recorder)
 
 This is the **chrome-recorder** reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
+Its purpose is to record video of the test run in Chrome browser (including headless mode).
 
-<p align="center">
-    <img src="https://raw.github.com/swiniak/testcafe-reporter-chrome-recorder/master/media/preview.png" alt="preview" />
-</p>
+Note that it has severe performance impact so it's not recommended to run in concurrent mode.
 
 ## Install
+
+Install `ffmpeg` and make sure it's available in `PATH`
 
 ```
 npm install testcafe-reporter-chrome-recorder
@@ -18,7 +19,7 @@ npm install testcafe-reporter-chrome-recorder
 When you run tests from the command line, specify the reporter name by using the `--reporter` option:
 
 ```
-testcafe chrome 'path/to/test/file.js' --reporter chrome-recorder
+testcafe chrome 'path/to/test/file.js' --reporter spec,chrome-recorder:null
 ```
 
 
@@ -32,6 +33,13 @@ testCafe
     .reporter('chrome-recorder') // <-
     .run();
 ```
+
+## Known issues
+
+This is just a draft so expect many issues :)
+
+1. Performance impact on test execution
+2. Frames are a bit out of sync
 
 ## Author
 Andrzej Pasterczyk 
