@@ -19,7 +19,7 @@ npm install testcafe-reporter-chrome-recorder
 When you run tests from the command line, specify the reporter name by using the `--reporter` option:
 
 ```
-testcafe chrome 'path/to/test/file.js' --reporter spec,chrome-recorder:null
+testcafe chrome 'path/to/test/file.js' --reporter spec,chrome-recorder:/dev/null
 ```
 
 
@@ -33,6 +33,20 @@ testCafe
     .reporter('chrome-recorder') // <-
     .run();
 ```
+
+### Options
+
+Environmental variables that allow you to change reporter behaviour:
+
+* `CHROME_RECORDER_TMP_DIR`\
+Temporary directory where images with single frames will be stored. They will be removed after the conversion to mp4.\
+Default: `/tmp/chrome-recorder`
+* `CHROME_RECORDER_OUTPUT_DIR`\
+Output directory for video file\
+Default: `process.cwd()`
+* `CHROME_RECORDER_FRAME_FORMAT`\
+Output format for captured frames. Either `jpeg` or `png`.
+Default: `jpeg`
 
 ## Known issues
 

@@ -4,6 +4,9 @@ const fs = require('fs-extra');
 const ffmpeg = require('fluent-ffmpeg');
 const sleep = require('sleep');
 
+const tempPath = process.env.CHROME_RECORDER_TMP_DIR || '/tmp/chrome-recorder';
+const outputPath = process.env.CHROME_RECORDER_OUTPUT_DIR || process.cwd();
+const outputFormat = process.env.CHROME_RECORDER_FRAME_FORMAT || 'jpeg';
 // function getBrowserId () {
 //     const testRun = testRunTracker.resolveContextTestRun();
 
@@ -14,7 +17,6 @@ const knownBrowsers = [];
 let lock = 0;
 let interval;
 let shuttingDown = false;
-const outputFormat = 'jpeg';
 const quality = 60;
 const stats = {};
 let savingInProgress = 0;
@@ -22,16 +24,21 @@ let savingInProgress = 0;
 function enableScreencast (client, browserId) {
     return function () {
         client.Page.screencastFrame( frame =>{
-            if (!shuttingDown)
-                client.Page.screencastFrameAck({ sessionId: frame.sessionId });
-            ++stats[browserId].framesCaptured;
-            stats[browserId].start = stats[browserId].start || frame.metadata.timestamp;
-            stats[browserId].end = frame.metadata.timestamp;
-            ++stats[browserId].framesSaved;
-            ++savingInProgress;
-            fs.outputFile(`/tmp/chrome-recorder/${browserId}/frame-${frame.metadata.timestamp*1000000}.${outputFormat}`, frame.data, 'base64', function () { // eslint-disable-line
-                --savingInProgress;
-            });
+            try {
+                if (!shuttingDown)
+                    client.Page.screencastFrameAck({ sessionId: frame.sessionId });
+                ++stats[browserId].framesCaptured;
+                stats[browserId].start = stats[browserId].start || frame.metadata.timestamp;
+                stats[browserId].end = frame.metadata.timestamp;
+                ++stats[browserId].framesSaved;
+                ++savingInProgress;
+                fs.outputFile(`${tempPath}/${browserId}/frame-${frame.metadata.timestamp*1000000}.${outputFormat}`, frame.data, 'base64', function () { // eslint-disable-line
+                    --savingInProgress;
+                });
+            }
+            catch (error) {
+                console.error('Error while capturing frame', error);
+            }
         });
         client.Page.startScreencast({ format: outputFormat, quality: quality, everyNthFrame: 1 });
     };
@@ -42,19 +49,24 @@ function disableScreencast (browserId) {
 }
 
 function framesToVideo (browserId) {
-    ffmpeg()
-    .addInput(`/tmp/chrome-recorder/${browserId}/frame-*.${outputFormat}`)
-    .inputOptions('-pattern_type glob')
-    .outputFps(Math.ceil(stats[browserId].framesSaved / ( stats[browserId].end - stats[browserId].start )))
-    .videoCodec('libx264')
-    .on('error', function (err) {
-        console.log('An error occurred: ' + err.message);
-    })
-    .on('end', function () {
-        fs.removeSync(`/tmp/chrome-recorder/${browserId}`);
-        console.log(`Saved video file to ${process.cwd()}/${browserId}.mp4`);
-    })
-    .save(`${browserId}.mp4`);
+    try {
+        ffmpeg()
+        .addInput(`${tempPath}/${browserId}/frame-*.${outputFormat}`)
+        .inputOptions('-pattern_type glob')
+        .outputFps(Math.ceil(stats[browserId].framesSaved / ( stats[browserId].end - stats[browserId].start )))
+        .videoCodec('libx264')
+        .on('error', function (err) {
+            console.log('An error occurred: ' + err.message);
+        })
+        .on('end', function () {
+            fs.removeSync(`${tempPath}/${browserId}`);
+            console.log(`Saved video file to ${outputPath}/${browserId}.mp4`);
+        })
+        .save(`${outputPath}/${browserId}.mp4`);
+    }
+    catch (error) {
+        console.error('Unexpected error', error);
+    }
 }
 
 export default function () {
@@ -62,6 +74,12 @@ export default function () {
         noColors: true,
         
         reportTaskStart (/* startTime, userAgents, testCount */) {
+            try {
+                fs.ensureDirSync(outputPath);
+            }
+            catch (error) {
+                console.error(error);
+            }
         },
 
         reportFixtureStart (/* name, path */) {
@@ -107,6 +125,8 @@ export default function () {
             for (const browserId of knownBrowsers)
                 videos.push(framesToVideo(browserId));
             Promise.all(videos).then(function () {
+            }).catch(error => {
+                console.error('Error', error);
             });
         }
     };
